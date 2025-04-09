@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>256599367266-f33gviga63g550g1kt58pm8laiqk6lql.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.256599367266-f33gviga63g550g1kt58pm8laiqk6lql</string>
+	<key>API_KEY</key>
+	<string>AIzaSyB5ybuNDMx7hte8WG2i6YduSPH4-x6NPAw</string>
+	<key>GCM_SENDER_ID</key>
+	<string>256599367266</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.example.notif</string>
+	<key>PROJECT_ID</key>
+	<string>ecowico-4c229</string>
+	<key>STORAGE_BUCKET</key>
+	<string>ecowico-4c229.firebasestorage.app</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:256599367266:ios:b8430ae8a908f3068efb3b</string>
+	<key>DATABASE_URL</key>
+	<string>https://ecowico-4c229-default-rtdb.firebaseio.com</string>
+</dict>
+</plist>

@@ -1,0 +1,83 @@
+{
+  "project_info": {
+    "project_number": "256599367266",
+    "firebase_url": "https://ecowico-4c229-default-rtdb.firebaseio.com",
+    "project_id": "ecowico-4c229",
+    "storage_bucket": "ecowico-4c229.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256599367266:android:e26c55cad0c1b5028efb3b",
+        "android_client_info": {
+          "package_name": "com.ecowico.notif"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "256599367266-tr5d6qtd485dbsue8qtvb9a1s92mrb7m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9iJJSW45WGjb0kC_Q5hHFkt7E6XgjR8w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "256599367266-tr5d6qtd485dbsue8qtvb9a1s92mrb7m.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "256599367266-f33gviga63g550g1kt58pm8laiqk6lql.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.notif"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:256599367266:android:c33eec6ec54a60df8efb3b",
+        "android_client_info": {
+          "package_name": "com.example.notif"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "256599367266-tr5d6qtd485dbsue8qtvb9a1s92mrb7m.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA9iJJSW45WGjb0kC_Q5hHFkt7E6XgjR8w"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "256599367266-tr5d6qtd485dbsue8qtvb9a1s92mrb7m.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "256599367266-f33gviga63g550g1kt58pm8laiqk6lql.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.notif"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

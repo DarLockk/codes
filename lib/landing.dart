@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'main.dart'; // Importer pour accéder à AuthChecker
+import 'package:firebase_auth/firebase_auth.dart'; // Pour vérifier l'état de connexion
 
 class LandingPage extends StatefulWidget {
   const LandingPage({Key? key}) : super(key: key);
@@ -7,37 +9,38 @@ class LandingPage extends StatefulWidget {
   _LandingPageState createState() => _LandingPageState();
 }
 
-class _LandingPageState extends State<LandingPage> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _fadeAnimation;
-  late final Animation<Offset> _slideAnimation;
+class _LandingPageState extends State<LandingPage> {
+  bool _isLoggedIn = false; // État pour suivre si l'utilisateur est connecté
 
   @override
   void initState() {
     super.initState();
 
-    _controller = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    );
+    // Vérifier l'état de connexion au démarrage
+    _checkLoginStatus();
+  }
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
-    );
-
-    _controller.forward();
+  void _checkLoginStatus() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        _isLoggedIn = true;
+      });
+      // Si connecté, redirection automatique après 3 secondes
+      Future.delayed(const Duration(seconds: 3), () {
+        if (mounted) {
+          AuthChecker.checkAndRedirect(context);
+        }
+      });
+    } else {
+      setState(() {
+        _isLoggedIn = false;
+      });
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
     super.dispose();
   }
 
@@ -54,10 +57,7 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            Colors.white,
-            const Color(0xFFE6F0FF),
-          ],
+          colors: [Colors.white, const Color(0xFFE6F0FF)],
         ),
       ),
       child: Stack(
@@ -103,65 +103,62 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                   // Section de bienvenue avec logo et nom DarLock
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Row(
-                          children: [
-                            Image.asset(
-                              'assets/logo_doorbel.png',
-                              height: 50,
-                              fit: BoxFit.contain,
-                              color: primaryColor,
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Bienvenue chez",
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.black,
-                                      fontFamily: 'SFPro', // Police iOS
-                                    ),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            'assets/logo_doorbel.png',
+                            height: 50,
+                            fit: BoxFit.contain,
+                            color: primaryColor,
+                          ),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  "Bienvenue chez",
+                                  style: TextStyle(
+                                    fontSize: 17,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                    fontFamily: 'SFPro',
                                   ),
-                                  Text(
-                                    "DarLock !",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                      color: darLockColor, // Couleur différente
-                                      fontFamily: 'SFPro', // Police iOS
-                                    ),
+                                ),
+                                Text(
+                                  "DarLock !",
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: darLockColor,
+                                    fontFamily: 'SFPro',
                                   ),
-                                  Text(
-                                    "Votre porte, sécurisée et connectée.",
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      color: Colors.black.withOpacity(0.6),
-                                      fontFamily: 'SFPro', // Police iOS
-                                    ),
+                                ),
+                                Text(
+                                  "Votre porte, sécurisée et connectée.",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.black.withOpacity(0.6),
+                                    fontFamily: 'SFPro',
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -169,122 +166,132 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
                   // Section texte principal avec DarLock
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: SlideTransition(
-                      position: _slideAnimation,
-                      child: FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          "DarLock",
+                          style: TextStyle(
+                            fontSize: 28,
+                            fontWeight: FontWeight.bold,
+                            color: darLockColor,
+                            fontFamily: 'SFPro',
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        Text(
+                          "Connectivité et Comfort",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: primaryColor,
+                            fontFamily: 'SFPro',
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          "Ouvrez et surveillez votre porte, où que vous soyez.",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.black.withOpacity(0.8),
+                            fontFamily: 'SFPro',
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                        const SizedBox(height: 28),
+                        // Cartes de fonctionnalités
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          alignment: WrapAlignment.center,
                           children: [
-                            Text(
-                              "DarLock",
-                              style: TextStyle(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,
-                                color: darLockColor, // Couleur différente
-                                fontFamily: 'SFPro', // Police iOS
-                                letterSpacing: -0.5,
-                              ),
+                            _buildFeatureCard(
+                              icon: Icons.face,
+                              title: "Face ID",
+                              subtitle: "Déverrouillage sécurisé",
+                              color: primaryColor,
                             ),
-                            Text(
-                              "Connectivité et Comfort",
-                              style: TextStyle(
-                                fontSize: 20, // Légèrement plus petit pour équilibrer
-                                fontWeight: FontWeight.bold,
-                                color: primaryColor,
-                                fontFamily: 'SFPro', // Police iOS
-                                letterSpacing: -0.5,
-                              ),
+                            _buildFeatureCard(
+                              icon: Icons.lock_open,
+                              title: "Ouverture à distance",
+                              subtitle: "Contrôle à distance",
+                              color: secondaryColor,
                             ),
-                            const SizedBox(height: 8),
-                            Text(
-                              "Ouvrez et surveillez votre porte, où que vous soyez.",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.black.withOpacity(0.8),
-                                fontFamily: 'SFPro', // Police iOS
-                                fontWeight: FontWeight.w400,
-                              ),
+                            _buildFeatureCard(
+                              icon: Icons.camera,
+                              title: "Caméra en direct",
+                              subtitle: "Voir en temps réel",
+                              color: primaryColor,
                             ),
-                            const SizedBox(height: 28),
-                            // Cartes de fonctionnalités (SFPro conservé)
-                            Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
-                              alignment: WrapAlignment.center,
-                              children: [
-                                _buildFeatureCard(
-                                  icon: Icons.face,
-                                  title: "Face ID",
-                                  subtitle: "Déverrouillage sécurisé",
-                                  color: primaryColor,
-                                ),
-                                _buildFeatureCard(
-                                  icon: Icons.lock_open,
-                                  title: "Ouverture à distance",
-                                  subtitle: "Contrôle à distance",
-                                  color: secondaryColor,
-                                ),
-                                _buildFeatureCard(
-                                  icon: Icons.camera,
-                                  title: "Caméra en direct",
-                                  subtitle: "Voir en temps réel",
-                                  color: primaryColor,
-                                ),
-                                _buildFeatureCard(
-                                  icon: Icons.notifications,
-                                  title: "Alertes",
-                                  subtitle: "Notifications instantanées",
-                                  color: secondaryColor,
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 55),
-                            // Nouveau bouton avec outline et animation
-                            GestureDetector(
-                              onTapDown: (_) {
-                                _controller.reverse(); // Animation scale au tap
-                              },
-                              onTapUp: (_) {
-                                _controller.forward();
-                                Navigator.pushReplacementNamed(context, '/signin');
-                              },
-                              onTapCancel: () {
-                                _controller.forward();
-                              },
-                              child: MouseRegion(
-                                onEnter: (_) => setState(() {}),
-                                onExit: (_) => setState(() {}),
-                                child: ScaleTransition(
-                                  scale: Tween<double>(begin: 1.0, end: 0.95).animate(
-                                    CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-                                  ),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 12),
-                                    decoration: BoxDecoration(
-                                      border: Border.all(color: darLockColor, width: 2),
-                                      borderRadius: BorderRadius.circular(20),
-                                      color: _controller.isAnimating
-                                          ? darLockColor.withOpacity(0.1)
-                                          : Colors.transparent, // Effet au survol/tap
-                                    ),
-                                    child: Text(
-                                      "Commencer",
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        color: darLockColor,
-                                        fontFamily: 'SFPro',
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
+                            _buildFeatureCard(
+                              icon: Icons.notifications,
+                              title: "Alertes",
+                              subtitle: "Notifications instantanées",
+                              color: secondaryColor,
                             ),
                           ],
                         ),
-                      ),
+                        const SizedBox(height: 55),
+                        // Condition : nouveau bouton circulaire ou indicateur visuel
+                        if (!_isLoggedIn)
+                          GestureDetector(
+                            onTap: () {
+                              AuthChecker.checkAndRedirect(context);
+                            },
+                            child: Container(
+                              width: 60,
+                              height: 60,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                gradient: LinearGradient(
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                  colors: [darLockColor, primaryColor],
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: darLockColor.withOpacity(0.3),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: const Center(
+                                child: Icon(
+                                  Icons.arrow_forward,
+                                  color: Colors.white,
+                                  size: 28,
+                                ),
+                              ),
+                            ),
+                          )
+                        else
+                          Column(
+                            children: [
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  _buildLoadingDot(darLockColor),
+                                  const SizedBox(width: 8),
+                                  _buildLoadingDot(darLockColor),
+                                  const SizedBox(width: 8),
+                                  _buildLoadingDot(darLockColor),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                "Chargement...",
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  color: darLockColor,
+                                  fontFamily: 'SFPro',
+                                ),
+                              ),
+                            ],
+                          ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 40),
@@ -297,6 +304,23 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
     );
   }
 
+  // Widget pour un point clignotant
+  Widget _buildLoadingDot(Color color) {
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+      width: 10,
+      height: 10,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color.withOpacity(0.8),
+      ),
+      onEnd: () {
+        setState(() {}); // Relance l'animation en boucle
+      },
+    );
+  }
+
   Widget _buildFeatureCard({
     required IconData icon,
     required String title,
@@ -304,18 +328,17 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
     required Color color,
   }) {
     return SizedBox(
-      width: 120, // Taille fixe plus petite
-      height: 100, // Hauteur fixe plus petite
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(8), // Padding réduit
+      width: 120,
+      height: 100,
+      child: Container(
+        padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12), // Coins moins arrondis
+          borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.05),
-              blurRadius: 8, // Ombre plus subtile
+              blurRadius: 8,
               offset: const Offset(0, 2),
             ),
           ],
@@ -323,25 +346,25 @@ class _LandingPageState extends State<LandingPage> with SingleTickerProviderStat
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 24, color: color), // Icône plus petite
-            const SizedBox(height: 4), // Espacement réduit
+            Icon(icon, size: 24, color: color),
+            const SizedBox(height: 4),
             Text(
               title,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14, // Texte plus petit
+                fontSize: 14,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
-                fontFamily: 'SFPro', // Police conservée
+                fontFamily: 'SFPro',
               ),
             ),
             Text(
               subtitle,
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 10, // Sous-titre plus petit
+                fontSize: 10,
                 color: Colors.black.withOpacity(0.6),
-                fontFamily: 'SFPro', // Police conservée
+                fontFamily: 'SFPro',
               ),
             ),
           ],

@@ -56,8 +56,8 @@ dependencies:
   google_mlkit_face_detection: ^0.13.1  # Pour la détection faciale
   image_picker: ^1.0.7                 # Pour sélectionner des images
   http: ^1.2.0
-  firebase_storage: ^12.4.5
   intl: ^0.18.0
+  camera: ^0.10.0
 
 dependency_overrides:
   flutter_local_notifications_linux: ^5.0.0

@@ -8,8 +8,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 
-List<NotificationItem> notifications = [];
-
 class NotificationItem {
   final String title;
   final String body;
@@ -39,7 +37,6 @@ class NotificationItem {
     );
   }
 
-  // Implémentation de l'opérateur == pour comparer deux NotificationItem
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -49,7 +46,6 @@ class NotificationItem {
           body == other.body &&
           timestamp == other.timestamp;
 
-  // Implémentation de hashCode pour accompagner ==
   @override
   int get hashCode => title.hashCode ^ body.hashCode ^ timestamp.hashCode;
 }
@@ -76,76 +72,12 @@ Future<void> saveNotificationToFirestore(NotificationItem notification) async {
           .collection('notifications')
           .add(notification.toMap());
       print("Notification sauvegardée dans Firestore avec ID : ${ref.id}");
-      notifications.add(notification);
     } catch (e, stackTrace) {
       print("Erreur lors de la sauvegarde dans Firestore : $e");
       print("Stack trace : $stackTrace");
     }
   } else {
     print("Aucun utilisateur connecté, notification non sauvegardée.");
-  }
-}
-
-Future<void> loadNotificationsFromFirestore() async {
-  User? user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
-    print("Chargement des notifications pour l'utilisateur : ${user.uid}");
-    try {
-      QuerySnapshot snapshot =
-          await FirebaseFirestore.instance
-              .collection('users')
-              .doc(user.uid)
-              .collection('notifications')
-              .orderBy('timestamp', descending: true)
-              .get();
-      notifications =
-          snapshot.docs
-              .map(
-                (doc) => NotificationItem.fromMap(
-                  doc.data() as Map<String, dynamic>,
-                ),
-              )
-              .toList();
-      print(
-        "Notifications chargées depuis Firestore : ${notifications.length}",
-      );
-      notifications.forEach((n) => print(" - ${n.title} : ${n.body}"));
-    } catch (e, stackTrace) {
-      print("Erreur lors du chargement des notifications : $e");
-      print("Stack trace : $stackTrace");
-    }
-  } else {
-    print(
-      "Aucun utilisateur connecté, impossible de charger les notifications.",
-    );
-  }
-}
-
-Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  print("Firebase réinitialisé pour le background handler.");
-  print("Handling a background message: ${message.messageId}");
-  if (message.notification != null) {
-    NotificationItem item = NotificationItem(
-      title: message.notification!.title!,
-      body: message.notification!.body!,
-      timestamp: DateTime.now(),
-    );
-    await saveNotificationToFirestore(item);
-    await FlutterLocalNotificationsPlugin().show(
-      message.hashCode,
-      message.notification!.title,
-      message.notification!.body,
-      NotificationDetails(
-        android: AndroidNotificationDetails(
-          'channel_id',
-          'Channel Name',
-          channelDescription: 'Channel Description',
-          importance: Importance.max,
-          priority: Priority.high,
-        ),
-      ),
-    );
   }
 }
 

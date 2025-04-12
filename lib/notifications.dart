@@ -12,12 +12,29 @@ class NotificationsScreen extends StatefulWidget {
   _NotificationsScreenState createState() => _NotificationsScreenState();
 }
 
-class _NotificationsScreenState extends State<NotificationsScreen> {
+class _NotificationsScreenState extends State<NotificationsScreen>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
-    // Initialiser la localisation en français
     initializeDateFormatting('fr_FR', null);
+    WidgetsBinding.instance.addObserver(
+      this,
+    ); // Ajouter un observateur pour les changements d’état
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Forcer un rafraîchissement lorsque l’application revient au premier plan
+      setState(() {});
+    }
   }
 
   Future<void> _clearAllNotifications() async {
@@ -143,16 +160,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    // Fond avec gradient (blanc cassé à rose pâle)
     final background = Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFFFF8E1),
-            Color(0xFFFFEBEE),
-          ], // Blanc cassé à rose pâle
+          colors: [Color(0xFFFFF8E1), Color(0xFFFFEBEE)],
         ),
       ),
       child: Stack(
@@ -165,7 +178,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               height: size.height * 0.3,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFFE1BEE7).withOpacity(0.1), // Violet pâle
+                color: Color(0xFFE1BEE7).withOpacity(0.1),
               ),
             ),
           ),
@@ -177,7 +190,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
               height: size.height * 0.2,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFFFFCCBC).withOpacity(0.05), // Orange pâle
+                color: Color(0xFFFFCCBC).withOpacity(0.05),
               ),
             ),
           ),
@@ -192,7 +205,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
           SafeArea(
             child: Column(
               children: [
-                // En-tête
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Row(
@@ -208,18 +220,12 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         ),
                       ),
                       TextButton(
-                        onPressed:
-                            notifications.isNotEmpty
-                                ? _clearAllNotifications
-                                : null,
+                        onPressed: _clearAllNotifications,
                         child: Text(
                           "Tout supprimer",
                           style: TextStyle(
                             fontSize: 14,
-                            color:
-                                notifications.isNotEmpty
-                                    ? AppTheme.primaryColor
-                                    : Colors.grey,
+                            color: AppTheme.primaryColor,
                             fontFamily: 'SFPro',
                           ),
                         ),
@@ -227,16 +233,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                     ],
                   ),
                 ),
-                // Liste des notifications
                 Expanded(
                   child: StreamBuilder<QuerySnapshot>(
                     stream:
-                        FirebaseFirestore.instance
-                            .collection('users')
-                            .doc(FirebaseAuth.instance.currentUser?.uid)
-                            .collection('notifications')
-                            .orderBy('timestamp', descending: true)
-                            .snapshots(),
+                        FirebaseAuth.instance.currentUser != null
+                            ? FirebaseFirestore.instance
+                                .collection('users')
+                                .doc(FirebaseAuth.instance.currentUser!.uid)
+                                .collection('notifications')
+                                .orderBy('timestamp', descending: true)
+                                .snapshots()
+                            : null,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return Center(
@@ -265,7 +272,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                 Icons.notifications_off,
                                 size: 60,
                                 color: Color(0xFFAB47BC),
-                              ), // Violet moyen
+                              ),
                               SizedBox(height: 16),
                               Text(
                                 "Aucune notification",
@@ -280,7 +287,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                         );
                       }
 
-                      // Créer une liste de paires (NotificationItem, docId)
                       var notificationWithIds =
                           snapshot.data!.docs.map((doc) {
                             return {
@@ -291,7 +297,6 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                             };
                           }).toList();
 
-                      // Grouper les notifications par date
                       Map<String, List<Map<String, dynamic>>>
                       groupedNotifications = {};
                       for (var item in notificationWithIds) {
@@ -327,7 +332,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                   style: TextStyle(
                                     fontSize: 14,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFF388E3C), // Vert foncé
+                                    color: Color(0xFF388E3C),
                                     fontFamily: 'SFPro',
                                   ),
                                 ),
@@ -388,9 +393,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                 ),
                                                 padding: EdgeInsets.all(8),
                                                 decoration: BoxDecoration(
-                                                  color: Color(
-                                                    0xFFFFF3E0,
-                                                  ), // Beige très clair
+                                                  color: Color(0xFFFFF3E0),
                                                   borderRadius:
                                                       BorderRadius.circular(12),
                                                   boxShadow: [
@@ -408,16 +411,14 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                       radius: 16,
                                                       backgroundColor: Color(
                                                         0xFFE1BEE7,
-                                                      ).withOpacity(
-                                                        0.1,
-                                                      ), // Violet pâle
+                                                      ).withOpacity(0.1),
                                                       child: Icon(
                                                         getIconForNotification(
                                                           notification.title,
                                                         ),
                                                         color: Color(
                                                           0xFFAB47BC,
-                                                        ), // Violet moyen
+                                                        ),
                                                         size: 20,
                                                       ),
                                                     ),
@@ -467,7 +468,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                                                         fontSize: 10,
                                                         color: Color(
                                                           0xFFFF7043,
-                                                        ), // Orange moyen
+                                                        ),
                                                         fontFamily: 'SFPro',
                                                       ),
                                                     ),
@@ -512,10 +513,7 @@ class NotificationDetailScreen extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: [
-            Color(0xFFFFF8E1),
-            Color(0xFFFFEBEE),
-          ], // Blanc cassé à rose pâle
+          colors: [Color(0xFFFFF8E1), Color(0xFFFFEBEE)],
         ),
       ),
       child: Stack(
@@ -528,7 +526,7 @@ class NotificationDetailScreen extends StatelessWidget {
               height: size.height * 0.3,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFFE1BEE7).withOpacity(0.1), // Violet pâle
+                color: Color(0xFFE1BEE7).withOpacity(0.1),
               ),
             ),
           ),
@@ -540,7 +538,7 @@ class NotificationDetailScreen extends StatelessWidget {
               height: size.height * 0.2,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Color(0xFFFFCCBC).withOpacity(0.05), // Orange pâle
+                color: Color(0xFFFFCCBC).withOpacity(0.05),
               ),
             ),
           ),
@@ -564,7 +562,7 @@ class NotificationDetailScreen extends StatelessWidget {
                         icon: Icon(
                           Icons.arrow_back_ios,
                           color: Color(0xFFAB47BC),
-                        ), // Violet moyen
+                        ),
                         onPressed: () => Navigator.pop(context),
                       ),
                       Text(
@@ -586,7 +584,7 @@ class NotificationDetailScreen extends StatelessWidget {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        color: Color(0xFFFFF3E0), // Beige très clair
+                        color: Color(0xFFFFF3E0),
                         child: Padding(
                           padding: EdgeInsets.all(16),
                           child: Column(
@@ -596,10 +594,10 @@ class NotificationDetailScreen extends StatelessWidget {
                                 radius: 40,
                                 backgroundColor: Color(
                                   0xFFE1BEE7,
-                                ).withOpacity(0.1), // Violet pâle
+                                ).withOpacity(0.1),
                                 child: Icon(
                                   getIconForNotification(notification.title),
-                                  color: Color(0xFFAB47BC), // Violet moyen
+                                  color: Color(0xFFAB47BC),
                                   size: 40,
                                 ),
                               ),
@@ -619,7 +617,7 @@ class NotificationDetailScreen extends StatelessWidget {
                                 "Reçu le ${DateFormat('d MMM à HH:mm', 'fr_FR').format(notification.timestamp)}",
                                 style: TextStyle(
                                   fontSize: 14,
-                                  color: Color(0xFFFF7043), // Orange moyen
+                                  color: Color(0xFFFF7043),
                                   fontFamily: 'SFPro',
                                 ),
                               ),
